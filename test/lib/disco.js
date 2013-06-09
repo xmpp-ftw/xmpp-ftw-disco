@@ -40,5 +40,35 @@ describe('Disco', function() {
             disco.handles(query).should.be.true
         })
 
+        it('Sends DISCO#info requests to client', function(done) {
+            var request = '<iq id="1" from="romeo@example.com" type="get">'
+                + '<query xmlns="' + disco. NS_INFO + '" /></iq>'
+            xmpp.once('stanza', function(stanza) {
+                stanza.attrs.type.should.equal('result')
+                var query = stanza.getChild('query')
+                should.exist(query)
+                query.attrs.xmlns.should.equal(disco.NS_INFO)
+                query.children.length.should.equal(2)
+                var children = query.children
+                children[0].name.should.equal('kind1')
+                children[0].attrs.name.should.equal('name1')
+                children[0].attrs.category.should.equal('cat1')
+                children[0].attrs.var.should.equal('var1')
+                children[0].attrs.jid.should.equal('jid1')
+                children[0].attrs.node.should.equal('node1')
+                children[1].name.should.eql('kind2')
+                done()
+            })
+            socket.once('xmpp.discover.client', function(data, callback) {
+                var features = [
+                    { kind: 'kind1', name: 'name1', category: 'cat1', var: 'var1', jid: 'jid1', node: 'node1' },
+                    { kind: 'kind2' },
+                    {}
+                ]
+                callback(features)
+            })
+            disco.handle(ltx.parse(request)).should.be.true            
+        })
+
     })
 })
