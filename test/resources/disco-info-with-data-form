@@ -1,0 +1,12 @@
+<iq type='result'
+    from='conference.example.net'
+    to='juliet@example.com/balcony'
+    id='1'>
+  <query xmlns='http://jabber.org/protocol/disco#info'>
+    <x type='result' xmlns='jabber:x:data'>
+      <field var='var1' label='label1'>
+        <value>value1</value>
+      </field>
+    </x>
+  </query>
+</iq>

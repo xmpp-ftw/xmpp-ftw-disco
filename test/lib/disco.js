@@ -145,6 +145,99 @@ describe('Disco', function() {
 
         describe('Can make DISCO#info requests', function() {
 
+           it('Should error when no \'of\' property passed', function(done) {
+                xmpp.once('stanza', function() {
+                    done('Unexpected outgoing stanza')
+                })
+                socket.emit('xmpp.discover.info', {}, function(error, success) {
+                    should.not.exist(success)
+                    error.type.should.equal('modify')
+                    error.condition.should.equal('client-error')
+                    error.description.should.equal("Missing 'of' key")
+                    error.request.should.eql({})
+                    xmpp.removeAllListeners('stanza')
+                    done()
+                })
+            })
+
+            it('Can handle error response from server', function(done) {
+                var of = 'wonderland.lit'
+                xmpp.once('stanza', function(stanza) {
+                     stanza.is('iq').should.be.true
+                     stanza.attrs.type.should.equal('get')
+                     stanza.attrs.to.should.equal(of)
+                     should.exist(stanza.attrs.id)
+                     var query = stanza.getChild('query', disco.NS_INFO)
+                     manager.makeCallback(helper.getStanza('iq-error'))
+                })
+                var callback = function(error, success) {
+                    should.not.exist(success)
+                    error.should.eql({
+                        type: 'cancel',
+                        condition: 'error-condition'
+                    })
+                    done()
+                }
+                socket.emit('xmpp.discover.info', { of: of }, callback)
+            })
+
+            it('Can handle successful response', function(done) {
+                var request = {
+                    of: 'wonderland.lit',
+                    node: 'rabbithole'
+                }
+                xmpp.once('stanza', function(stanza) {
+                     stanza.is('iq').should.be.true
+                     stanza.attrs.type.should.equal('get')
+                     stanza.attrs.to.should.equal(request.of)
+                     should.exist(stanza.attrs.id)
+                     var query = stanza.getChild('query', disco.NS_INFO)
+                     query.attrs.node.should.equal(request.node)
+                     manager.makeCallback(helper.getStanza('disco-info'))
+                })
+                var callback = function(error, data) {
+                    should.not.exist(error)
+                    // Element <ignore/> will have been ignored
+                    data.length.should.equal(3)
+                    data[0].kind.should.equal('identity')
+                    data[0].type.should.equal('type1')
+                    data[0].name.should.equal('name1')
+                    data[0].category.should.equal('category1')
+                    data[1].should.eql({ kind: 'feature', var: 'var2' })
+                    data[2].kind.should.equal('item')
+                    data[2].var.should.equal('var3')
+                    data[2].jid.should.equal('jid3')
+                    data[2].node.should.equal('node3')
+                    done()
+                }
+                socket.emit('xmpp.discover.info', request, callback)
+            })
+
+            it('Can handle response with data form', function(done) {
+                var request = {
+                    of: 'wonderland.lit',
+                    node: 'rabbithole'
+                }
+                xmpp.once('stanza', function(stanza) {
+                     stanza.is('iq').should.be.true
+                     stanza.attrs.type.should.equal('get')
+                     stanza.attrs.to.should.equal(request.of)
+                     should.exist(stanza.attrs.id)
+                     var query = stanza.getChild('query', disco.NS_INFO)
+                     query.attrs.node.should.equal(request.node)
+                     var stanza = helper.getStanza('disco-info-with-data-form')
+                     manager.makeCallback(stanza)
+                })
+                var callback = function(error, data) {
+                    should.not.exist(error)
+                    data.length.should.equal(1)
+                    data[0].kind.should.equal('form')
+                    data[0].form.fields.length.should.equal(1)
+                    done()
+                }
+                socket.emit('xmpp.discover.info', request, callback)
+            })
+
         })
 
     })

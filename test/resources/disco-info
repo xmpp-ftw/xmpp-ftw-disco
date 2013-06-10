@@ -1,0 +1,14 @@
+<iq type='result'
+    from='conference.example.net'
+    to='juliet@example.com/balcony'
+    id='1'>
+  <query xmlns='http://jabber.org/protocol/disco#info'>
+    <identity
+        category='category1'
+        name='name1'
+        type='type1' />
+    <feature var='var2'/>
+    <item var='var3' jid='jid3' node='node3' />
+    <ignore />
+  </query>
+</iq>
