@@ -5,19 +5,23 @@ var should  = require('should')
 
 describe('Disco', function() {
 
-    var disco
-    var socket
-    var xmpp
+    var disco, socket, xmpp, manager
 
     before(function() {
         socket = new helper.Eventer()
         xmpp = new helper.Eventer()
-        var manager = {
+        manager = {
             socket: socket,
-            client: xmpp
+            client: xmpp,
+            trackId: function(id, callback) {
+                this.callback = callback
+            },
+            makeCallback: function(error, data) {
+                this.callback(error, data)
+            }
         }
         disco = new Disco()
-        disco.init({ socket: socket, client: xmpp })
+        disco.init(manager)
     })
 
     describe('Can handle incoming requests', function() {
@@ -68,6 +72,79 @@ describe('Disco', function() {
                 callback(features)
             })
             disco.handle(ltx.parse(request)).should.be.true            
+        })
+
+        describe('Can make DISCO#items requests', function() {
+
+            it('Should error when no \'of\' property passed', function(done) {
+                xmpp.once('stanza', function() {
+                    done('Unexpected outgoing stanza')
+                })
+                socket.emit('xmpp.discover.items', {}, function(error, success) {
+                    should.not.exist(success)
+                    error.type.should.equal('modify')
+                    error.condition.should.equal('client-error')
+                    error.description.should.equal("Missing 'of' key")
+                    error.request.should.eql({})
+                    xmpp.removeAllListeners('stanza')
+                    done()
+                })
+            })
+
+            it('Can handle error response from server', function(done) {
+                var of = 'wonderland.lit'
+                xmpp.once('stanza', function(stanza) {
+                     stanza.is('iq').should.be.true
+                     stanza.attrs.type.should.equal('get')
+                     stanza.attrs.to.should.equal(of)
+                     should.exist(stanza.attrs.id)
+                     var query = stanza.getChild('query', disco.NS_ITEMS)
+                     manager.makeCallback(helper.getStanza('iq-error'))
+                })
+                var callback = function(error, success) {
+                    should.not.exist(success)
+                    error.should.eql({
+                        type: 'cancel',
+                        condition: 'error-condition'
+                    })
+                    done()
+                }
+                socket.emit('xmpp.discover.items', { of: of }, callback)
+            })
+
+            it('Can handle DISCO#items response', function(done) {
+                var request = { 
+                    of: 'wonderland.lit',
+                    node: 'rabbithole'
+                }
+                xmpp.once('stanza', function(stanza) {
+                     stanza.is('iq').should.be.true
+                     stanza.attrs.type.should.equal('get')
+                     stanza.attrs.to.should.equal(request.of)
+                     should.exist(stanza.attrs.id)
+                     var query = stanza.getChild('query', disco.NS_ITEMS)
+                     query.attrs.node.should.equal(request.node)
+                     manager.makeCallback(helper.getStanza('disco-items'))
+                })
+                var callback = function(error, data) {
+                    should.not.exist(error)
+                    data.length.should.equal(2)
+                    data[0].should.eql({ jid: 'jid1', name: 'name1' })
+                    data[1].jid.should.equal('jid2')
+                    data[1].name.should.equal('name2')
+                    data[1].type.should.equal('type2')
+                    data[1].var.should.equal('var2')
+                    data[1].category.should.equal('category2')
+                    data[1].node.should.equal('node2')
+                    done()
+                }
+                socket.emit('xmpp.discover.items', request, callback) 
+            })
+
+        })
+
+        describe('Can make DISCO#info requests', function() {
+
         })
 
     })
