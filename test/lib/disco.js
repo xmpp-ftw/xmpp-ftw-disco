@@ -91,6 +91,36 @@ describe('Disco', function() {
                 })
             })
 
+            it('Errors when no callback provided', function(done) {
+                xmpp.once('stanza', function() {
+                    done('Unexpected outgoing stanza')
+                })
+                socket.once('xmpp.error.client', function(error) {
+                    error.type.should.equal('modify')
+                    error.condition.should.equal('client-error')
+                    error.description.should.equal("Missing callback")
+                    error.request.should.eql({ of: 'example.com' })
+                    xmpp.removeAllListeners('stanza')
+                    done()
+                })
+                socket.emit('xmpp.discover.items', { of: 'example.com' })
+            })
+
+            it('Errors when non-function callback provided', function(done) {
+                xmpp.once('stanza', function() {
+                    done('Unexpected outgoing stanza')
+                })
+                socket.once('xmpp.error.client', function(error) {
+                    error.type.should.equal('modify')
+                    error.condition.should.equal('client-error')
+                    error.description.should.equal("Missing callback")
+                    error.request.should.eql({ of: 'example.com' })
+                    xmpp.removeAllListeners('stanza')
+                    done()
+                })
+                socket.emit('xmpp.discover.items', { of: 'example.com' }, true)
+            })
+
             it('Can handle error response from server', function(done) {
                 var of = 'wonderland.lit'
                 xmpp.once('stanza', function(stanza) {
@@ -158,6 +188,36 @@ describe('Disco', function() {
                     xmpp.removeAllListeners('stanza')
                     done()
                 })
+            })
+
+            it('Errors when no callback provided', function(done) {
+                xmpp.once('stanza', function() {
+                    done('Unexpected outgoing stanza')
+                })
+                socket.once('xmpp.error.client', function(error) {
+                    error.type.should.equal('modify')
+                    error.condition.should.equal('client-error')
+                    error.description.should.equal("Missing callback")
+                    error.request.should.eql({ of: 'example.com' })
+                    xmpp.removeAllListeners('stanza')
+                    done()
+                })
+                socket.emit('xmpp.discover.info', { of: 'example.com' })
+            })
+
+            it('Errors when non-function callback provided', function(done) {
+                xmpp.once('stanza', function() {
+                    done('Unexpected outgoing stanza')
+                })
+                socket.once('xmpp.error.client', function(error) {
+                    error.type.should.equal('modify')
+                    error.condition.should.equal('client-error')
+                    error.description.should.equal("Missing callback")
+                    error.request.should.eql({ of: 'example.com' })
+                    xmpp.removeAllListeners('stanza')
+                    done()
+                })
+                socket.emit('xmpp.discover.info', { of: 'example.com' }, true)
             })
 
             it('Can handle error response from server', function(done) {
@@ -241,4 +301,5 @@ describe('Disco', function() {
         })
 
     })
+
 })
