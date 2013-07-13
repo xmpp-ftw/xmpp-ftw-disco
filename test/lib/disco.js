@@ -121,6 +121,28 @@ describe('Disco', function() {
                 socket.emit('xmpp.discover.items', { of: 'example.com' }, true)
             })
 
+            it('Sends expected stanza', function(done) {
+                var of = 'wonderland.lit'
+                xmpp.once('stanza', function(stanza) {
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.to.should.equal(of)
+                    stanza.getChild('query', disco.NS_ITEMS)
+                        .should.exist
+                    done()
+                })
+                socket.emit('xmpp.discover.items', { of: of }, function() {})
+            })
+
+            it('Sends expected stanza with node', function(done) {
+                var request = { of: 'wonderland.lit', node: 'some-node' }
+                xmpp.once('stanza', function(stanza) {
+                    stanza.getChild('query', disco.NS_ITEMS)
+                        .attrs.node.should.equal(request.node)
+                    done()
+                })
+                socket.emit('xmpp.discover.items', request, function() {})
+            })
+
             it('Can handle error response from server', function(done) {
                 var of = 'wonderland.lit'
                 xmpp.once('stanza', function(stanza) {
