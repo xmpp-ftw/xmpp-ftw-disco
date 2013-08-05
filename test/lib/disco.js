@@ -2,6 +2,7 @@ var should  = require('should')
   , Disco   = require('../../lib/disco')
   , ltx     = require('ltx')
   , helper  = require('../helper')
+  , rsm     = require('xmpp-ftw/lib/utils/xep-0059')
 
 describe('Disco', function() {
 
@@ -65,7 +66,8 @@ describe('Disco', function() {
             })
             socket.once('xmpp.discover.client', function(data, callback) {
                 var features = [
-                    { kind: 'kind1', name: 'name1', category: 'cat1', var: 'var1', jid: 'jid1', node: 'node1' },
+                    { kind: 'kind1', name: 'name1', category: 'cat1', 
+                      var: 'var1', jid: 'jid1', node: 'node1' },
                     { kind: 'kind2' },
                     {}
                 ]
@@ -132,6 +134,27 @@ describe('Disco', function() {
                 })
                 socket.emit('xmpp.discover.items', { of: of }, function() {})
             })
+            
+            it('Sends expected stanza with RSM', function(done) {
+                var request = {
+                  of: 'wonderland.lit',
+                  rsm: {
+                    after: '12345',
+                    max: '20'
+                  }
+                }
+                xmpp.once('stanza', function(stanza) {
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.to.should.equal(request.of)
+                    var query = stanza.getChild('query', disco.NS_ITEMS)
+                    var set = query.getChild('set', rsm.NS)
+                    set.should.exist
+                    set.getChildText('after').should.equal(request.rsm.after)
+                    set.getChildText('max').should.equal(request.rsm.max)
+                    done()
+                })
+                socket.emit('xmpp.discover.items', request, function() {})
+            })
 
             it('Sends expected stanza with node', function(done) {
                 var request = { of: 'wonderland.lit', node: 'some-node' }
@@ -191,6 +214,27 @@ describe('Disco', function() {
                     done()
                 }
                 socket.emit('xmpp.discover.items', request, callback) 
+            })
+            
+            it('Sends RSM data back if provided', function(done) {
+                var request = {
+                    of: 'wonderland.lit'
+                }
+                xmpp.once('stanza', function(stanza) {
+                     var stanza = helper.getStanza('disco-items-with-rsm')
+                     manager.makeCallback(stanza)
+                })
+                var callback = function(error, data, rsm) {
+                    should.not.exist(error)
+                    data.should.exist
+                    rsm.should.eql({
+                        first: 'first',
+                        last: 'last',
+                        count: 100
+                    })
+                    done()
+                }
+                socket.emit('xmpp.discover.items', request, callback)
             })
 
         })
@@ -254,6 +298,27 @@ describe('Disco', function() {
                 socket.emit('xmpp.discover.info', { of: of }, function() {})
             })
 
+            it('Sends expected stanza with RSM', function(done) {
+                var request = {
+                  of: 'wonderland.lit',
+                  rsm: {
+                    after: '12345',
+                    max: '20'
+                  }
+                }
+                xmpp.once('stanza', function(stanza) {
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.to.should.equal(request.of)
+                    var query = stanza.getChild('query', disco.NS_INFO)
+                    var set = query.getChild('set', rsm.NS)
+                    set.should.exist
+                    set.getChildText('after').should.equal(request.rsm.after)
+                    set.getChildText('max').should.equal(request.rsm.max)
+                    done()
+                })
+                socket.emit('xmpp.discover.info', request, function() {})
+            })
+            
             it('Sends expected stanza with node', function(done) {
                 var request = { of: 'wonderland.lit', node: 'some-node' }
                 xmpp.once('stanza', function(stanza) {
@@ -337,6 +402,27 @@ describe('Disco', function() {
                     data.length.should.equal(1)
                     data[0].kind.should.equal('form')
                     data[0].form.fields.length.should.equal(1)
+                    done()
+                }
+                socket.emit('xmpp.discover.info', request, callback)
+            })
+            
+            it('Sends RSM data back if provided', function(done) {
+                var request = {
+                    of: 'wonderland.lit'
+                }
+                xmpp.once('stanza', function(stanza) {
+                     var stanza = helper.getStanza('disco-info-with-rsm')
+                     manager.makeCallback(stanza)
+                })
+                var callback = function(error, data, rsm) {
+                    should.not.exist(error)
+                    data.should.exist
+                    rsm.should.eql({
+                        first: 'first',
+                        last: 'last',
+                        count: 100
+                    })
                     done()
                 }
                 socket.emit('xmpp.discover.info', request, callback)
