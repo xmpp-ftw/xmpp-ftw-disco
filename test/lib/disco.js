@@ -411,5 +411,112 @@ describe('Disco', function() {
         })
 
     })
+    
+    describe('Can send disco#info responses', function() {
+      
+        it('Errors if no \'to\' key provided', function(done) {
+            var request = {}
+            xmpp.once('stanza', function() {
+                done('Unexpected outgoing stanza')
+            })
+            socket.once('xmpp.error.client', function(error) {
+                error.type.should.equal('modify')
+                error.condition.should.equal('client-error')
+                error.description.should.equal('Missing \'to\' key')
+                error.request.should.eql(request)
+                xmpp.removeAllListeners('stanza')
+                done()
+            })
+            socket.emit('xmpp.discover.result', request)
+        })
+        
+        it('Errors if no \'id\' key provided', function(done) {
+            var request = { to: 'romeo@shakespeare.lit/desktop' }
+            xmpp.once('stanza', function() {
+                done('Unexpected outgoing stanza')
+            })
+            socket.once('xmpp.error.client', function(error) {
+                error.type.should.equal('modify')
+                error.condition.should.equal('client-error')
+                error.description.should.equal('Missing \'id\' key')
+                error.request.should.eql(request)
+                xmpp.removeAllListeners('stanza')
+                done()
+            })
+            socket.emit('xmpp.discover.result', request)
+        })
+        
+        it('Sends expected stanza with no info entries', function(done) {
+            var request = {
+                to: 'romeo@shakespeare.lit/desktop',
+                id: '555:info'
+            }
+            xmpp.once('stanza', function(stanza) {
+                stanza.is('iq').should.be.true
+                stanza.attrs.to.should.equal(request.to)
+                stanza.attrs.id.should.equal(request.id)
+                stanza.attrs.type.should.equal('result')
+                var query = stanza.getChild('query')
+                should.exist(query)
+                query.attrs.xmlns.should.equal(disco.NS_INFO)
+                query.children.length.should.equal(0)
+                done()
+            })
+            socket.emit('xmpp.discover.result', request)
+        })
+        
+        it('Errors if features is not an array', function(done) {
+            var request = { 
+                to: 'romeo@shakespeare.lit/desktop',
+                id: '555:info',
+                features: true
+            }
+            xmpp.once('stanza', function() {
+                done('Unexpected outgoing stanza')
+            })
+            socket.once('xmpp.error.client', function(error) {
+                error.type.should.equal('modify')
+                error.condition.should.equal('client-error')
+                error.description.should.equal("Badly formatted \'features\' key")
+                error.request.should.eql(request)
+                xmpp.removeAllListeners('stanza')
+                done()
+            })
+            socket.emit('xmpp.discover.result', request)
+        })
+        
+        it('Sends expected stanza with features', function(done) {
+           var request = {
+               to: 'romeo@shakespeare.lit/desktop',
+               id: '555:info',
+               features: [
+                    { kind: 'kind1', name: 'name1', category: 'cat1', 
+                      var: 'var1', jid: 'jid1', node: 'node1' },
+                    { kind: 'kind2' },
+                    {}
+                ]
+           }
+           xmpp.once('stanza', function(stanza) {
+                stanza.is('iq').should.be.true
+                stanza.attrs.to.should.equal(request.to)
+                stanza.attrs.id.should.equal(request.id)
+                stanza.attrs.type.should.equal('result')
+                var query = stanza.getChild('query')
+                should.exist(query)
+                query.attrs.xmlns.should.equal(disco.NS_INFO)
+                query.children.length.should.equal(2)
+                var children = query.children
+                children[0].name.should.equal('kind1')
+                children[0].attrs.name.should.equal('name1')
+                children[0].attrs.category.should.equal('cat1')
+                children[0].attrs.var.should.equal('var1')
+                children[0].attrs.jid.should.equal('jid1')
+                children[0].attrs.node.should.equal('node1')
+                children[1].name.should.eql('kind2')
+                done()
+            })
+            socket.emit('xmpp.discover.result', request)
+        })
+    })
 
 })
