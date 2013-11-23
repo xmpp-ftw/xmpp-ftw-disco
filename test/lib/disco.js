@@ -515,8 +515,27 @@ describe('Disco', function() {
                 children[1].name.should.eql('kind2')
                 done()
             })
-            socket.emit('xmpp.discover.result', request)
+            socket.emit('xmpp.discover.client', request)
         })
+
+        it('Returns true if callback provided', function(done) {
+            var request = {
+               to: 'romeo@shakespeare.lit/desktop',
+               id: '555:info',
+               features: [
+                    { kind: 'kind1', name: 'name1', category: 'cat1',
+                      var: 'var1', jid: 'jid1', node: 'node1' },
+                    { kind: 'kind2' },
+                    {}
+                ]
+            }
+            socket.emit('xmpp.discover.client', request, function(error, success) {
+                should.not.exist(error)
+                success.should.be.true
+                done()
+            })
+        })
+
     })
 
 })
