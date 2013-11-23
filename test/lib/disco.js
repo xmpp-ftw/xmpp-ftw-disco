@@ -26,7 +26,7 @@ describe('Disco', function() {
     })
 
     describe('Can handle incoming requests', function() {
-    
+
         it('Shouldn\'t handle non-IQ stanzas', function() {
             disco.handles(ltx.parse('<message/>')).should.be.false
         })
@@ -53,7 +53,7 @@ describe('Disco', function() {
                 data.id.should.equal('1')
                 done()
             })
-            disco.handle(ltx.parse(request)).should.be.true            
+            disco.handle(ltx.parse(request)).should.be.true
         })
 
         describe('Can make DISCO#items requests', function() {
@@ -114,7 +114,7 @@ describe('Disco', function() {
                 })
                 socket.emit('xmpp.discover.items', { of: of }, function() {})
             })
-            
+
             it('Sends expected stanza with RSM', function(done) {
                 var request = {
                   of: 'wonderland.lit',
@@ -168,7 +168,7 @@ describe('Disco', function() {
             })
 
             it('Can handle DISCO#items response', function(done) {
-                var request = { 
+                var request = {
                     of: 'wonderland.lit',
                     node: 'rabbithole'
                 }
@@ -193,9 +193,9 @@ describe('Disco', function() {
                     data[1].node.should.equal('node2')
                     done()
                 }
-                socket.emit('xmpp.discover.items', request, callback) 
+                socket.emit('xmpp.discover.items', request, callback)
             })
-            
+
             it('Sends RSM data back if provided', function(done) {
                 var request = {
                     of: 'wonderland.lit'
@@ -298,7 +298,7 @@ describe('Disco', function() {
                 })
                 socket.emit('xmpp.discover.info', request, function() {})
             })
-            
+
             it('Sends expected stanza with node', function(done) {
                 var request = { of: 'wonderland.lit', node: 'some-node' }
                 xmpp.once('stanza', function(stanza) {
@@ -386,7 +386,7 @@ describe('Disco', function() {
                 }
                 socket.emit('xmpp.discover.info', request, callback)
             })
-            
+
             it('Sends RSM data back if provided', function(done) {
                 var request = {
                     of: 'wonderland.lit'
@@ -411,9 +411,9 @@ describe('Disco', function() {
         })
 
     })
-    
+
     describe('Can send disco#info responses', function() {
-      
+
         it('Errors if no \'to\' key provided', function(done) {
             var request = {}
             xmpp.once('stanza', function() {
@@ -427,9 +427,9 @@ describe('Disco', function() {
                 xmpp.removeAllListeners('stanza')
                 done()
             })
-            socket.emit('xmpp.discover.result', request)
+            socket.emit('xmpp.discover.client', request)
         })
-        
+
         it('Errors if no \'id\' key provided', function(done) {
             var request = { to: 'romeo@shakespeare.lit/desktop' }
             xmpp.once('stanza', function() {
@@ -443,9 +443,9 @@ describe('Disco', function() {
                 xmpp.removeAllListeners('stanza')
                 done()
             })
-            socket.emit('xmpp.discover.result', request)
+            socket.emit('xmpp.discover.client', request)
         })
-        
+
         it('Sends expected stanza with no info entries', function(done) {
             var request = {
                 to: 'romeo@shakespeare.lit/desktop',
@@ -462,11 +462,11 @@ describe('Disco', function() {
                 query.children.length.should.equal(0)
                 done()
             })
-            socket.emit('xmpp.discover.result', request)
+            socket.emit('xmpp.discover.client', request)
         })
-        
+
         it('Errors if features is not an array', function(done) {
-            var request = { 
+            var request = {
                 to: 'romeo@shakespeare.lit/desktop',
                 id: '555:info',
                 features: true
@@ -482,15 +482,15 @@ describe('Disco', function() {
                 xmpp.removeAllListeners('stanza')
                 done()
             })
-            socket.emit('xmpp.discover.result', request)
+            socket.emit('xmpp.discover.client', request)
         })
-        
+
         it('Sends expected stanza with features', function(done) {
            var request = {
                to: 'romeo@shakespeare.lit/desktop',
                id: '555:info',
                features: [
-                    { kind: 'kind1', name: 'name1', category: 'cat1', 
+                    { kind: 'kind1', name: 'name1', category: 'cat1',
                       var: 'var1', jid: 'jid1', node: 'node1' },
                     { kind: 'kind2' },
                     {}
