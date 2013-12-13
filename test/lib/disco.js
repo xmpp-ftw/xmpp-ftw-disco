@@ -1,3 +1,5 @@
+'use strict';
+
 var should  = require('should')
   , Disco   = require('../../lib/disco')
   , ltx     = require('ltx')
