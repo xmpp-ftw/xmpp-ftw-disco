@@ -1,10 +1,10 @@
 'use strict';
 
 var should  = require('should')
-  , Disco   = require('../../lib/disco')
+  , Disco   = require('../../index')
   , ltx     = require('ltx')
   , helper  = require('../helper')
-  , rsm     = require('xmpp-ftw/lib/utils/xep-0059')
+  , rsm     = require('xmpp-ftw/').utils['xep-0059']
 
 describe('Disco', function() {
 
