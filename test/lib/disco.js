@@ -6,6 +6,7 @@ var should  = require('should')
   , helper  = require('../helper')
   , rsm     = require('xmpp-ftw/').utils['xep-0059']
 
+/* jshint -W030 */
 describe('Disco', function() {
 
     var disco, socket, xmpp, manager
@@ -48,8 +49,8 @@ describe('Disco', function() {
         })
 
         it('Sends DISCO#info requests to client', function(done) {
-            var request = '<iq id="1" from="romeo@example.com" type="get">'
-                + '<query xmlns="' + disco.NS_INFO + '" /></iq>'
+            var request = '<iq id="1" from="romeo@example.com" type="get">' +
+                '<query xmlns="' + disco.NS_INFO + '" /></iq>'
             socket.once('xmpp.discover.client', function(data) {
                 data.from.should.equal('romeo@example.com')
                 data.id.should.equal('1')
@@ -68,7 +69,7 @@ describe('Disco', function() {
                     should.not.exist(success)
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
-                    error.description.should.equal("Missing 'of' key")
+                    error.description.should.equal('Missing \'of\' key')
                     error.request.should.eql({})
                     xmpp.removeAllListeners('stanza')
                     done()
@@ -82,7 +83,7 @@ describe('Disco', function() {
                 socket.once('xmpp.error.client', function(error) {
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
-                    error.description.should.equal("Missing callback")
+                    error.description.should.equal('Missing callback')
                     error.request.should.eql({ of: 'example.com' })
                     xmpp.removeAllListeners('stanza')
                     done()
@@ -97,7 +98,7 @@ describe('Disco', function() {
                 socket.once('xmpp.error.client', function(error) {
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
-                    error.description.should.equal("Missing callback")
+                    error.description.should.equal('Missing callback')
                     error.request.should.eql({ of: 'example.com' })
                     xmpp.removeAllListeners('stanza')
                     done()
@@ -119,11 +120,11 @@ describe('Disco', function() {
 
             it('Sends expected stanza with RSM', function(done) {
                 var request = {
-                  of: 'wonderland.lit',
-                  rsm: {
-                    after: '12345',
-                    max: '20'
-                  }
+                    of: 'wonderland.lit',
+                    rsm: {
+                        after: '12345',
+                        max: '20'
+                    }
                 }
                 xmpp.once('stanza', function(stanza) {
                     stanza.is('iq').should.be.true
@@ -151,12 +152,12 @@ describe('Disco', function() {
             it('Can handle error response from server', function(done) {
                 var of = 'wonderland.lit'
                 xmpp.once('stanza', function(stanza) {
-                     stanza.is('iq').should.be.true
-                     stanza.attrs.type.should.equal('get')
-                     stanza.attrs.to.should.equal(of)
-                     should.exist(stanza.attrs.id)
-                     var query = stanza.getChild('query', disco.NS_ITEMS)
-                     manager.makeCallback(helper.getStanza('iq-error'))
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.type.should.equal('get')
+                    stanza.attrs.to.should.equal(of)
+                    should.exist(stanza.attrs.id)
+                    stanza.getChild('query', disco.NS_ITEMS).should.exist
+                    manager.makeCallback(helper.getStanza('iq-error'))
                 })
                 var callback = function(error, success) {
                     should.not.exist(success)
@@ -175,13 +176,13 @@ describe('Disco', function() {
                     node: 'rabbithole'
                 }
                 xmpp.once('stanza', function(stanza) {
-                     stanza.is('iq').should.be.true
-                     stanza.attrs.type.should.equal('get')
-                     stanza.attrs.to.should.equal(request.of)
-                     should.exist(stanza.attrs.id)
-                     var query = stanza.getChild('query', disco.NS_ITEMS)
-                     query.attrs.node.should.equal(request.node)
-                     manager.makeCallback(helper.getStanza('disco-items'))
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.type.should.equal('get')
+                    stanza.attrs.to.should.equal(request.of)
+                    should.exist(stanza.attrs.id)
+                    var query = stanza.getChild('query', disco.NS_ITEMS)
+                    query.attrs.node.should.equal(request.node)
+                    manager.makeCallback(helper.getStanza('disco-items'))
                 })
                 var callback = function(error, data) {
                     should.not.exist(error)
@@ -202,9 +203,9 @@ describe('Disco', function() {
                 var request = {
                     of: 'wonderland.lit'
                 }
-                xmpp.once('stanza', function(stanza) {
-                     var stanza = helper.getStanza('disco-items-with-rsm')
-                     manager.makeCallback(stanza)
+                xmpp.once('stanza', function() {
+                    var stanza = helper.getStanza('disco-items-with-rsm')
+                    manager.makeCallback(stanza)
                 })
                 var callback = function(error, data, rsm) {
                     should.not.exist(error)
@@ -223,7 +224,7 @@ describe('Disco', function() {
 
         describe('Can make DISCO#info requests', function() {
 
-           it('Should error when no \'of\' property passed', function(done) {
+            it('Should error when no \'of\' property passed', function(done) {
                 xmpp.once('stanza', function() {
                     done('Unexpected outgoing stanza')
                 })
@@ -231,7 +232,7 @@ describe('Disco', function() {
                     should.not.exist(success)
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
-                    error.description.should.equal("Missing 'of' key")
+                    error.description.should.equal('Missing \'of\' key')
                     error.request.should.eql({})
                     xmpp.removeAllListeners('stanza')
                     done()
@@ -245,7 +246,7 @@ describe('Disco', function() {
                 socket.once('xmpp.error.client', function(error) {
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
-                    error.description.should.equal("Missing callback")
+                    error.description.should.equal('Missing callback')
                     error.request.should.eql({ of: 'example.com' })
                     xmpp.removeAllListeners('stanza')
                     done()
@@ -260,7 +261,7 @@ describe('Disco', function() {
                 socket.once('xmpp.error.client', function(error) {
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
-                    error.description.should.equal("Missing callback")
+                    error.description.should.equal('Missing callback')
                     error.request.should.eql({ of: 'example.com' })
                     xmpp.removeAllListeners('stanza')
                     done()
@@ -282,11 +283,11 @@ describe('Disco', function() {
 
             it('Sends expected stanza with RSM', function(done) {
                 var request = {
-                  of: 'wonderland.lit',
-                  rsm: {
-                    after: '12345',
-                    max: '20'
-                  }
+                    of: 'wonderland.lit',
+                    rsm: {
+                        after: '12345',
+                        max: '20'
+                    }
                 }
                 xmpp.once('stanza', function(stanza) {
                     stanza.is('iq').should.be.true
@@ -314,12 +315,12 @@ describe('Disco', function() {
             it('Can handle error response from server', function(done) {
                 var of = 'wonderland.lit'
                 xmpp.once('stanza', function(stanza) {
-                     stanza.is('iq').should.be.true
-                     stanza.attrs.type.should.equal('get')
-                     stanza.attrs.to.should.equal(of)
-                     should.exist(stanza.attrs.id)
-                     var query = stanza.getChild('query', disco.NS_INFO)
-                     manager.makeCallback(helper.getStanza('iq-error'))
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.type.should.equal('get')
+                    stanza.attrs.to.should.equal(of)
+                    should.exist(stanza.attrs.id)
+                    stanza.getChild('query', disco.NS_INFO).should.exist
+                    manager.makeCallback(helper.getStanza('iq-error'))
                 })
                 var callback = function(error, success) {
                     should.not.exist(success)
@@ -338,13 +339,13 @@ describe('Disco', function() {
                     node: 'rabbithole'
                 }
                 xmpp.once('stanza', function(stanza) {
-                     stanza.is('iq').should.be.true
-                     stanza.attrs.type.should.equal('get')
-                     stanza.attrs.to.should.equal(request.of)
-                     should.exist(stanza.attrs.id)
-                     var query = stanza.getChild('query', disco.NS_INFO)
-                     query.attrs.node.should.equal(request.node)
-                     manager.makeCallback(helper.getStanza('disco-info'))
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.type.should.equal('get')
+                    stanza.attrs.to.should.equal(request.of)
+                    should.exist(stanza.attrs.id)
+                    var query = stanza.getChild('query', disco.NS_INFO)
+                    query.attrs.node.should.equal(request.node)
+                    manager.makeCallback(helper.getStanza('disco-info'))
                 })
                 var callback = function(error, data) {
                     should.not.exist(error)
@@ -370,14 +371,14 @@ describe('Disco', function() {
                     node: 'rabbithole'
                 }
                 xmpp.once('stanza', function(stanza) {
-                     stanza.is('iq').should.be.true
-                     stanza.attrs.type.should.equal('get')
-                     stanza.attrs.to.should.equal(request.of)
-                     should.exist(stanza.attrs.id)
-                     var query = stanza.getChild('query', disco.NS_INFO)
-                     query.attrs.node.should.equal(request.node)
-                     var stanza = helper.getStanza('disco-info-with-data-form')
-                     manager.makeCallback(stanza)
+                    stanza.is('iq').should.be.true
+                    stanza.attrs.type.should.equal('get')
+                    stanza.attrs.to.should.equal(request.of)
+                    should.exist(stanza.attrs.id)
+                    var query = stanza.getChild('query', disco.NS_INFO)
+                    query.attrs.node.should.equal(request.node)
+                    stanza = helper.getStanza('disco-info-with-data-form')
+                    manager.makeCallback(stanza)
                 })
                 var callback = function(error, data) {
                     should.not.exist(error)
@@ -393,9 +394,9 @@ describe('Disco', function() {
                 var request = {
                     of: 'wonderland.lit'
                 }
-                xmpp.once('stanza', function(stanza) {
-                     var stanza = helper.getStanza('disco-info-with-rsm')
-                     manager.makeCallback(stanza)
+                xmpp.once('stanza', function() {
+                    var stanza = helper.getStanza('disco-info-with-rsm')
+                    manager.makeCallback(stanza)
                 })
                 var callback = function(error, data, rsm) {
                     should.not.exist(error)
@@ -479,7 +480,7 @@ describe('Disco', function() {
             socket.once('xmpp.error.client', function(error) {
                 error.type.should.equal('modify')
                 error.condition.should.equal('client-error')
-                error.description.should.equal("Badly formatted \'features\' key")
+                error.description.should.equal('Badly formatted \'features\' key')
                 error.request.should.eql(request)
                 xmpp.removeAllListeners('stanza')
                 done()
@@ -488,17 +489,17 @@ describe('Disco', function() {
         })
 
         it('Sends expected stanza with features', function(done) {
-           var request = {
-               to: 'romeo@shakespeare.lit/desktop',
-               id: '555:info',
-               features: [
+            var request = {
+                to: 'romeo@shakespeare.lit/desktop',
+                id: '555:info',
+                features: [
                     { kind: 'kind1', name: 'name1', category: 'cat1',
                       var: 'var1', jid: 'jid1', node: 'node1' },
                     { kind: 'kind2' },
                     {}
                 ]
-           }
-           xmpp.once('stanza', function(stanza) {
+            }
+            xmpp.once('stanza', function(stanza) {
                 stanza.is('iq').should.be.true
                 stanza.attrs.to.should.equal(request.to)
                 stanza.attrs.id.should.equal(request.id)
@@ -522,9 +523,9 @@ describe('Disco', function() {
 
         it('Returns true if callback provided', function(done) {
             var request = {
-               to: 'romeo@shakespeare.lit/desktop',
-               id: '555:info',
-               features: [
+                to: 'romeo@shakespeare.lit/desktop',
+                id: '555:info',
+                features: [
                     { kind: 'kind1', name: 'name1', category: 'cat1',
                       var: 'var1', jid: 'jid1', node: 'node1' },
                     { kind: 'kind2' },

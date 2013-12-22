@@ -1,3 +1,5 @@
+'use strict';
+
 var ltx = require('ltx')
   , fs = require('fs')
   , Event = require('events').EventEmitter
