@@ -28,7 +28,8 @@
     "url": "https://github.com/xmpp-ftw/xmpp-ftw-disco/issues"
   },
   "dependencies": {
-    "ltx": "*"
+    "ltx": "~0.3.3",
+    "xmpp-ftw": "~1.0.0"
   },
   "devDependencies": {
     "xmpp-ftw": "*",
@@ -39,6 +40,6 @@
     "grunt-mocha-cli": "~1.4.0"
   },
   "peerDependencies": {
-    "xmpp-ftw": "0.x"
+    "xmpp-ftw": "1.x"
   }
 }

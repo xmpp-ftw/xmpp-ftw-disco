@@ -12,8 +12,8 @@ describe('Disco', function() {
     var disco, socket, xmpp, manager
 
     before(function() {
-        socket = new helper.Eventer()
-        xmpp = new helper.Eventer()
+        socket = new helper.SocketEventer()
+        xmpp = new helper.XmppEventer()
         manager = {
             socket: socket,
             client: xmpp,
@@ -25,6 +25,12 @@ describe('Disco', function() {
             }
         }
         disco = new Disco()
+        disco.init(manager)
+    })
+
+    beforeEach(function() {
+        socket.removeAllListeners()
+        xmpp.removeAllListeners()
         disco.init(manager)
     })
 
@@ -65,7 +71,7 @@ describe('Disco', function() {
                 xmpp.once('stanza', function() {
                     done('Unexpected outgoing stanza')
                 })
-                socket.emit('xmpp.discover.items', {}, function(error, success) {
+                socket.send('xmpp.discover.items', {}, function(error, success) {
                     should.not.exist(success)
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
@@ -88,7 +94,7 @@ describe('Disco', function() {
                     xmpp.removeAllListeners('stanza')
                     done()
                 })
-                socket.emit('xmpp.discover.items', { of: 'example.com' })
+                socket.send('xmpp.discover.items', { of: 'example.com' })
             })
 
             it('Errors when non-function callback provided', function(done) {
@@ -103,7 +109,7 @@ describe('Disco', function() {
                     xmpp.removeAllListeners('stanza')
                     done()
                 })
-                socket.emit('xmpp.discover.items', { of: 'example.com' }, true)
+                socket.send('xmpp.discover.items', { of: 'example.com' }, true)
             })
 
             it('Sends expected stanza', function(done) {
@@ -115,7 +121,7 @@ describe('Disco', function() {
                         .should.exist
                     done()
                 })
-                socket.emit('xmpp.discover.items', { of: of }, function() {})
+                socket.send('xmpp.discover.items', { of: of }, function() {})
             })
 
             it('Sends expected stanza with RSM', function(done) {
@@ -136,7 +142,7 @@ describe('Disco', function() {
                     set.getChildText('max').should.equal(request.rsm.max)
                     done()
                 })
-                socket.emit('xmpp.discover.items', request, function() {})
+                socket.send('xmpp.discover.items', request, function() {})
             })
 
             it('Sends expected stanza with node', function(done) {
@@ -146,7 +152,7 @@ describe('Disco', function() {
                         .attrs.node.should.equal(request.node)
                     done()
                 })
-                socket.emit('xmpp.discover.items', request, function() {})
+                socket.send('xmpp.discover.items', request, function() {})
             })
 
             it('Can handle error response from server', function(done) {
@@ -167,7 +173,7 @@ describe('Disco', function() {
                     })
                     done()
                 }
-                socket.emit('xmpp.discover.items', { of: of }, callback)
+                socket.send('xmpp.discover.items', { of: of }, callback)
             })
 
             it('Can handle DISCO#items response', function(done) {
@@ -196,7 +202,7 @@ describe('Disco', function() {
                     data[1].node.should.equal('node2')
                     done()
                 }
-                socket.emit('xmpp.discover.items', request, callback)
+                socket.send('xmpp.discover.items', request, callback)
             })
 
             it('Sends RSM data back if provided', function(done) {
@@ -217,7 +223,7 @@ describe('Disco', function() {
                     })
                     done()
                 }
-                socket.emit('xmpp.discover.items', request, callback)
+                socket.send('xmpp.discover.items', request, callback)
             })
 
         })
@@ -228,7 +234,7 @@ describe('Disco', function() {
                 xmpp.once('stanza', function() {
                     done('Unexpected outgoing stanza')
                 })
-                socket.emit('xmpp.discover.info', {}, function(error, success) {
+                socket.send('xmpp.discover.info', {}, function(error, success) {
                     should.not.exist(success)
                     error.type.should.equal('modify')
                     error.condition.should.equal('client-error')
@@ -251,7 +257,7 @@ describe('Disco', function() {
                     xmpp.removeAllListeners('stanza')
                     done()
                 })
-                socket.emit('xmpp.discover.info', { of: 'example.com' })
+                socket.send('xmpp.discover.info', { of: 'example.com' })
             })
 
             it('Errors when non-function callback provided', function(done) {
@@ -266,7 +272,7 @@ describe('Disco', function() {
                     xmpp.removeAllListeners('stanza')
                     done()
                 })
-                socket.emit('xmpp.discover.info', { of: 'example.com' }, true)
+                socket.send('xmpp.discover.info', { of: 'example.com' }, true)
             })
 
             it('Sends expected stanza', function(done) {
@@ -278,7 +284,7 @@ describe('Disco', function() {
                         .should.exist
                     done()
                 })
-                socket.emit('xmpp.discover.info', { of: of }, function() {})
+                socket.send('xmpp.discover.info', { of: of }, function() {})
             })
 
             it('Sends expected stanza with RSM', function(done) {
@@ -299,7 +305,7 @@ describe('Disco', function() {
                     set.getChildText('max').should.equal(request.rsm.max)
                     done()
                 })
-                socket.emit('xmpp.discover.info', request, function() {})
+                socket.send('xmpp.discover.info', request, function() {})
             })
 
             it('Sends expected stanza with node', function(done) {
@@ -309,7 +315,7 @@ describe('Disco', function() {
                         .attrs.node.should.equal(request.node)
                     done()
                 })
-                socket.emit('xmpp.discover.info', request, function() {})
+                socket.send('xmpp.discover.info', request, function() {})
             })
 
             it('Can handle error response from server', function(done) {
@@ -330,7 +336,7 @@ describe('Disco', function() {
                     })
                     done()
                 }
-                socket.emit('xmpp.discover.info', { of: of }, callback)
+                socket.send('xmpp.discover.info', { of: of }, callback)
             })
 
             it('Can handle successful response', function(done) {
@@ -362,7 +368,7 @@ describe('Disco', function() {
                     data[2].node.should.equal('node3')
                     done()
                 }
-                socket.emit('xmpp.discover.info', request, callback)
+                socket.send('xmpp.discover.info', request, callback)
             })
 
             it('Can handle response with data form', function(done) {
@@ -387,7 +393,7 @@ describe('Disco', function() {
                     data[0].form.fields.length.should.equal(1)
                     done()
                 }
-                socket.emit('xmpp.discover.info', request, callback)
+                socket.send('xmpp.discover.info', request, callback)
             })
 
             it('Sends RSM data back if provided', function(done) {
@@ -408,7 +414,7 @@ describe('Disco', function() {
                     })
                     done()
                 }
-                socket.emit('xmpp.discover.info', request, callback)
+                socket.send('xmpp.discover.info', request, callback)
             })
 
         })
@@ -430,7 +436,7 @@ describe('Disco', function() {
                 xmpp.removeAllListeners('stanza')
                 done()
             })
-            socket.emit('xmpp.discover.client', request)
+            socket.send('xmpp.discover.client', request)
         })
 
         it('Errors if no \'id\' key provided', function(done) {
@@ -446,7 +452,7 @@ describe('Disco', function() {
                 xmpp.removeAllListeners('stanza')
                 done()
             })
-            socket.emit('xmpp.discover.client', request)
+            socket.send('xmpp.discover.client', request)
         })
 
         it('Sends expected stanza with no info entries', function(done) {
@@ -465,7 +471,7 @@ describe('Disco', function() {
                 query.children.length.should.equal(0)
                 done()
             })
-            socket.emit('xmpp.discover.client', request)
+            socket.send('xmpp.discover.client', request)
         })
 
         it('Errors if features is not an array', function(done) {
@@ -485,7 +491,7 @@ describe('Disco', function() {
                 xmpp.removeAllListeners('stanza')
                 done()
             })
-            socket.emit('xmpp.discover.client', request)
+            socket.send('xmpp.discover.client', request)
         })
 
         it('Sends expected stanza with features', function(done) {
@@ -518,7 +524,7 @@ describe('Disco', function() {
                 children[1].name.should.eql('kind2')
                 done()
             })
-            socket.emit('xmpp.discover.client', request)
+            socket.send('xmpp.discover.client', request)
         })
 
         it('Returns true if callback provided', function(done) {
@@ -532,7 +538,7 @@ describe('Disco', function() {
                     {}
                 ]
             }
-            socket.emit('xmpp.discover.client', request, function(error, success) {
+            socket.send('xmpp.discover.client', request, function(error, success) {
                 should.not.exist(error)
                 success.should.be.true
                 done()
