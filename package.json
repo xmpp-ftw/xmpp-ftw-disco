@@ -1,6 +1,6 @@
 {
   "name": "xmpp-ftw-disco",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "DISCO (XEP-0030) plugin for XMPP-FTW",
   "main": "index.js",
   "directories": {
