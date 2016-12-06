@@ -28,7 +28,7 @@
     "url": "https://github.com/xmpp-ftw/xmpp-ftw-disco/issues"
   },
   "dependencies": {
-    "ltx": "~2.3.0",
+    "ltx": "~2.6.0",
     "xmpp-ftw": "1.X"
   },
   "devDependencies": {
