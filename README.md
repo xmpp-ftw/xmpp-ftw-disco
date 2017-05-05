@@ -1,6 +1,8 @@
 xmpp-ftw-disco
 ==============
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/xmpp-ftw/xmpp-ftw-disco.svg)](https://greenkeeper.io/)
+
 An DISCO (XEP-0030) plugin for XMPP-FTW.
 
 https://github.com/xmpp-ftw/xmpp-ftw.git
